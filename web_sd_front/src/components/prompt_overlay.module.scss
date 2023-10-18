@@ -1,0 +1,66 @@
+@import '../styles/global-colors.module';
+
+
+.overlay_island {
+    margin: 10vh 0;
+    top: 0;
+    width: 100vw;
+}
+
+.deactivated {
+    color: #777777;
+}
+
+.higher {
+    min-width: 100%;
+    min-height: 150px;
+}
+
+.selected {
+    color: aquamarine;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background-color: $snow-white;
+    font-family: 'Lato', sans-serif;
+    padding: 0;
+    gap: 0;
+
+    &.wrapper {
+        border-radius: 12px;
+        min-width: 420px;
+        padding: 2rem;
+        gap: 1rem;
+    }
+}
+
+.wcc {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.wr {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.column {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100px;
+    align-items: center;
+    justify-content: center;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;  
+}

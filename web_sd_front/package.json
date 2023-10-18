@@ -1,0 +1,43 @@
+{
+  "name": "web-sd-front",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev_local": "vite --host 192.168.1.9",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^5.3.0",
+    "@blueprintjs/datetime": "^5.0.10",
+    "@blueprintjs/icons": "^5.1.6",
+    "@blueprintjs/select": "^5.0.10",
+    "@blueprintjs/table": "^5.0.10",
+    "@codux-boards/react-blueprint": "^1.0.13",
+    "@types/uuid": "^9.0.3",
+    "classnames": "^2.3.2",
+    "idb": "^7.1.1",
+    "lodash": "^4.17.21",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "reactflow": "^11.7.4",
+    "uuid": "^9.0.1",
+    "vite-plugin-svgr": "^3.2.0",
+    "web_sd_shared_types": "^0.1.0",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.197",
+    "@types/react": "^17.0.52",
+    "@types/react-dom": "^17.0.18",
+    "@types/websocket": "^1.0.5",
+    "@vitejs/plugin-react": "^4.0.3",
+    "@wixc3/react-board": "^2.3.0",
+    "prettier": "^3.0.0",
+    "sass": "^1.64.1",
+    "typescript": "~5.1.6",
+    "vite": "^4.4.7"
+  }
+}

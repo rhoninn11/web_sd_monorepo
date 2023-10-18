@@ -1,0 +1,8 @@
+{
+  "name": "web_sd_monorepo",
+  "workspaces": [
+    "web_sd_shared_types",
+    "web_sd_front",
+    "web_sd_back"
+  ]
+}
