@@ -1,2 +1,2 @@
 $env:PYTHONPATH += "$env:PYTHONPATH;$(pwd)\src"
-conda activate web_sd
+conda activate web_sd_env
