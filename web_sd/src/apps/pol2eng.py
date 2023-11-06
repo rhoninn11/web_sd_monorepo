@@ -1,13 +1,22 @@
 import time
-import numpy
 import json
-from PIL import Image
+import uuid
+import os
 
 from core.utils.utils_thread import ThreadWrap
 from core.threads.DiffusionClientThread import DiffusionClientThread
-from core.utils.utils import pil2simple_data, simple_data2pil
 
 from core.system.MultiThreadingApp import MultiThreadingApp
+
+script_directory = os.path.dirname(os.path.abspath(__file__))
+project_directory = os.path.abspath(os.path.join(script_directory, "..", ".."))
+input_file_path = os.path.join(project_directory, "fs", "input.json")
+
+
+def pars_input_file(in_file_path):
+    with open(in_file_path, "r") as json_file:
+        parsed_input = json.load(json_file)
+    return parsed_input
 
 class ClientWrapper():
     def __init__(self, **kwargs):
@@ -32,15 +41,18 @@ class ClientWrapper():
         return {}
 
 class ClientLogicThread(ThreadWrap):
-    def __init__(self, **kwargs):
+
+    def __init__(self, text_to_translate, **kwargs):
         ThreadWrap.__init__(self)
         self.client_wrapper = None
         self.on_finish = None
-        self.name = "txt2img"
+        self.name = "pol2ang"
 
         self.sample_num = 1
         self.result_count = 0
         self.start_moment = None
+
+        self.text_to_translate = text_to_translate
 
     def bind_wrapper(self, wrapper):
         self.client_wrapper = wrapper
@@ -50,12 +62,12 @@ class ClientLogicThread(ThreadWrap):
 
     def prepare_command(self):
         sub_command = { self.name: { 
-                "metadata": { "id": "from txt2img.py"},
+                "metadata": { "id": f"{uuid.uuid4()}"}, #"from pol2ang.py"
                 "config": {
-                    "prompt": "John rambo just chilling out in itally",
-                    "prompt_negative": "boring skyscape",
-                    "seed": 0,
-                    "samples": self.sample_num,
+                    "input_language": "PL",
+                    "goal_language": "ENG",
+                    "text_to_translate": self.text_to_translate,
+                    "translated_text": ""
                 },
             } 
         }
@@ -70,24 +82,17 @@ class ClientLogicThread(ThreadWrap):
     def process_result(self, result):
         if result:
             if result["type"] == "progress":
-                result = json.loads(result["data"])
-                
                 if self.start_moment == None:
                     self.start_moment = time.perf_counter()
-                print("Progress: ", result["progress"])
+                
                 return False
 
             if result["type"] == self.name:
                 result = json.loads(result["data"])
-
                 real_time = time.perf_counter() - self.start_moment
-                metadata = result[self.name]["metadata"]
-                print(f"+++ eee yoo {metadata}, time: {real_time}")
+                metadata = result["tekst_eng"]
+                print(f"+++++++++++++++++++ eee yoo: \n{metadata} \ntime: {real_time} \n+++++++++++++++++++\n")
 
-                bulk_data = result[self.name]["bulk"]
-                simple_data_img = bulk_data["img"]
-                pil_img = simple_data2pil(simple_data_img)
-                pil_img.save(f"fs/out/{self.name}_{self.result_count}.png")
                 return True
 
         return False
@@ -118,15 +123,16 @@ class ClientLogicThread(ThreadWrap):
             self.on_finish()
         
 class ExampleClient(MultiThreadingApp):
-    def __init__(self):
+    def __init__(self, text):
         MultiThreadingApp.__init__(self)
-    
-    def run(self):
-        client_thread = DiffusionClientThread(name="client-central")
-        client_thread.config_host_dst('localhost', 6203)
-        logic_thread = ClientLogicThread()
+        self.text = text
 
-        client_wrapper = ClientWrapper()
+    def run(self):
+        client_thread = DiffusionClientThread(name="translate-client-central")  #powinien się nazywać just ClientThread
+        client_thread.config_host_dst('localhost', 6203)              #communication port
+        logic_thread = ClientLogicThread(text_to_translate=self.text)                            
+
+        client_wrapper = ClientWrapper()                              #podłącza wątek, wysyła na serwer, zbiera info z serwera
         client_wrapper.bind_client_thread(client_thread)
         logic_thread.bind_wrapper(client_wrapper)
         logic_thread.bind_on_finish(self.exit_fn)
@@ -135,9 +141,14 @@ class ExampleClient(MultiThreadingApp):
         self.thread_launch(threads) 
 
 def main():
-    app = ExampleClient()
-    app.run()
-
+    print("#####################################")
+    data_to_translate = pars_input_file(input_file_path)
+    print("#####################################")
+    for it in data_to_translate:
+        app = ExampleClient(text = it['input_text'])
+        app.run() 
+    print("#########THATS_ALL_-_GOODBYE############")
 main()
+
 
 
