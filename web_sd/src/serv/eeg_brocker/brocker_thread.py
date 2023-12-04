@@ -20,15 +20,23 @@ class brocker_logic_thread(ThreadWrap):
         return
     
     def data_gen(self):
-        data_list = []
+        pos_list = []
+        scale_list = []
+        color_list = []
         samples = 10
-        f = 1 #Hz
+        f1 = 1 #Hz
+        f2 = 2.13
+        f3 = 3.13
         for i in range(samples):
-            off = i/(samples-1) + self.last_data_gen_tp
-            sv = math.sin(2*3.14*f+off)
-            data_list.append(sv)
+            tp = i/(samples-1) + self.last_data_gen_tp
+            pos_val = math.sin(2*3.14*f1*tp)
+            scale_val = (math.sin(2*3.14*f2*tp) + 1) * 0.5 * 0.5 + 1
+            color_val = math.sin(2*3.14*f3*tp)
+            pos_list.append(pos_val)
+            scale_list.append(scale_val)
+            color_list.append(color_val)
 
-        return data_list
+        return [pos_list, scale_list, color_list]
 
 
     

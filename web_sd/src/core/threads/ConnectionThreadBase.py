@@ -31,7 +31,7 @@ class ConnectionThreadBase(ThreadWrap):
         data_bytes = obj2json2bytes(obj_2_send)
         msg_bytes = self.wrap_data(data_bytes)
         connection.sendall(msg_bytes)
-        self.print(f"+++ wysłano {len(msg_bytes)}b")
+        # self.print(f"+++ wysłano {len(msg_bytes)}b")
 
     def revice_data(self, connection):
         len_bytes = connection.recv(4)
