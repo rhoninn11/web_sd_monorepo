@@ -48,4 +48,26 @@ cd web_sd
 ./_run_edge.ps1 / ./_run_central.ps1
 
 ```
-    
+---
+### EEG related
+
+- zainstalować sobie [conda](https://www.anaconda.com/download/)
+- zainstalować sobie [git](https://git-scm.com/download/win)
+- zachęcam też do instalacji [vscode](https://code.visualstudio.com/)
+- następnie uruchomić powershell
+```
+conda init
+```
+- zamknąć i na nowo uruchomić powershell, sprawdzić czy na początku linijki pojawiło się (base)
+- aktywacja środowiska:
+```
+cd web_sd
+# za pierwszym razem globalnie, nie wiem jak się zachowa bo nie testowałem,
+# ale powinno zadziałać
+./_create_env.ps1
+# za pierwszym razem jak siadasz do uruchomienia serwera
+./_activate.ps1
+# uruchomienie serwera
+python ./src/serv/eeg/main.py 4444
+```
+- czasami serwer trzeba będzie zatrzymywać, bo się coś zwiesi po stronie blendra, serwer zatrzymujesz Ctrl+c
