@@ -68,6 +68,6 @@ cd web_sd
 # za pierwszym razem jak siadasz do uruchomienia serwera
 ./_activate.ps1
 # uruchomienie serwera
-python ./src/serv/eeg/main.py 4444
+python ./src/serv/eeg_brocker/main.py 4444
 ```
 - czasami serwer trzeba będzie zatrzymywać, bo się coś zwiesi po stronie blendra, serwer zatrzymujesz Ctrl+c
