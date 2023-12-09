@@ -29,9 +29,9 @@ class brocker_logic_thread(ThreadWrap):
         f3 = 3.13
         for i in range(samples):
             tp = i/(samples-1) + self.last_data_gen_tp
-            pos_val = math.sin(2*3.14*f1*tp)
-            scale_val = (math.sin(2*3.14*f2*tp) + 1) * 0.5 * 0.5 + 1
-            color_val = math.sin(2*3.14*f3*tp)
+            pos_val = (math.sin(2*3.14*f1*tp) + 1) * 0.5
+            scale_val = (math.sin(2*3.14*f2*tp) + 1) * 0.5
+            color_val = (math.sin(2*3.14*f3*tp) + 1) * 0.5
             pos_list.append(pos_val)
             scale_list.append(scale_val)
             color_list.append(color_val)
