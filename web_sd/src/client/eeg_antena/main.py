@@ -1,32 +1,41 @@
-import mne
+import argparse
+
 import matplotlib.pyplot as plt
 import re
 
+from src.core.system.MultiThreadingApp import MultiThreadingApp
+from src.core.threads.ClientThread import ClientThread
 
-def get_relevent_channesl(all_channels):
-    regex = r"C[0-9]+"
-    channels = []
-    for name in all_channels:
-        if re.match(regex, name):
-            channels.append(name)
+from client.eeg_antena.data_thread import eeg_source_thread
 
-    return channels
+class EegClient(MultiThreadingApp):
+    def __init__(self):
+        MultiThreadingApp.__init__(self)
+    
+    def run(self):
+        print(f"+++ app start")
+        parser = argparse.ArgumentParser(description="port (eg. 6203)")
+        parser.add_argument("serv_port", help="server port", type=int)
+        args = parser.parse_args()
+        print(f"+++ app start {args}")
 
-print("+++ eeg antena started")
-data_file = "fs/eeg_data.edf"
-eeg = mne.io.read_raw_edf(data_file, preload=True)
-few_ch = get_relevent_channesl(eeg.ch_names)
 
-few_eeg = eeg.pick_channels(few_ch)
+        eeg_client = ClientThread("eeg data client")
+        eeg_client.config_host_dst("localhost", args.serv_port)
 
-data, times = few_eeg[:]
+        eeg_source = eeg_source_thread()
+        eeg_source.preview_data()
 
-fig, axes = plt.subplots(len(few_ch), 1, figsize=(10, 7), sharex=True)
 
-for i, channel in enumerate(few_ch):
-    axes[i].plot(times, data[i])
-    axes[i].set_title(channel)
-    axes[i].set_ylabel('Amplitude')
+        # gradio thread block main thread - must be last on the list
+        # threads = [data_gen_thread, eeg_client, tcp_thread_from_eeg]
+        # self.thread_launch(threads)
 
-axes[-1].set_xlabel('Time (s)')
-plt.show()
+        print("+++ edge server exit")
+
+
+def main():
+    edge_server = EegClient()
+    edge_server.run()
+
+main()

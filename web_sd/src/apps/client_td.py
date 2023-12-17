@@ -4,8 +4,8 @@ import asyncio
 
 
 from core.utils.utils_thread import ThreadWrap
-from core.threads.DiffusionClientThread import DiffusionClientThread
-from core.threads.DiffusionServerThread import ServerThread
+from web_sd.src.core.threads.ClientThread import ClientThread
+from web_sd.src.core.threads.ServerThread import ServerThread
 from core.utils.utils import pil2simple_data, simple_data2pil, pil2numpy, numpy2pil
 
 from core.system.MultiThreadingApp import MultiThreadingApp
@@ -130,7 +130,7 @@ class TouchDesignerClient(MultiThreadingApp):
 
         addres = params["address"]
         port = params["port"]
-        client_thread = DiffusionClientThread(name="client")
+        client_thread = ClientThread(name="client")
         client_thread.config_host_dst(addres, port)
         logic_thread = ClientLogicThread(name="logic")
 

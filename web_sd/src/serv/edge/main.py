@@ -1,4 +1,4 @@
-from core.threads.DiffusionServerThread import ServerThread
+from web_sd.src.core.threads.ServerThread import ServerThread
 from serv.edge.SDiffusionThread import SDiffusionThread
 
 from core.system.MultiThreadingApp import MultiThreadingApp
@@ -21,7 +21,7 @@ class EdgeServer(MultiThreadingApp):
         stableD_thread = SDiffusionThread(args.device)
         tcp_thread = ServerThread("edge_server")
 
-        tcp_thread.bind_worker(stableD_thread)
+        tcp_thread.bind_worker(stableD_thread.out_queue, stableD_thread.in_queue)
         tcp_thread.config_host("localhost", args.port)
 
         # gradio thread block main thread - must be last on the list

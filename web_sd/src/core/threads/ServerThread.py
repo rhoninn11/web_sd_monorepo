@@ -5,12 +5,14 @@ from core.threads.ConnectionThread import ConnectionThread
 class ServerThread(ConnectionThread):
     def __init__(self, name):
         ConnectionThread.__init__(self, name)
-        self.worker = None
+        self.data_in_q = None
+        self.data_out_q = None
         self.host = 'localhost'
         self.port = None
 
-    def bind_worker(self, worker):
-        self.worker = worker
+    def bind_worker(self, in_data_stream, out_data_stream):
+        self.data_in_q = in_data_stream
+        self.data_out_q = out_data_stream
 
     def config_host(self, host, port):
         self.host = host
@@ -35,7 +37,7 @@ class ServerThread(ConnectionThread):
                 connection, client = s.accept()
                 try:
                     print(f"+++ new client ({self.name})")
-                    self.connection_loop(connection, self.worker.out_queue, self.worker.in_queue)
+                    self.connection_loop(connection, self.data_in_q, self.data_out_q)
                     print(f"+++ client left ({self.name})")
                 finally:
                     connection.close()

@@ -4,7 +4,7 @@ import json
 from PIL import Image
 
 from core.utils.utils_thread import ThreadWrap
-from core.threads.DiffusionClientThread import DiffusionClientThread
+from web_sd.src.core.threads.ClientThread import ClientThread
 from core.utils.utils import pil2simple_data, simple_data2pil
 
 from core.system.MultiThreadingApp import MultiThreadingApp
@@ -122,7 +122,7 @@ class ExampleClient(MultiThreadingApp):
         MultiThreadingApp.__init__(self)
     
     def run(self):
-        client_thread = DiffusionClientThread(name="client-central")
+        client_thread = ClientThread(name="client-central")
         client_thread.config_host_dst('localhost', 6500)
         logic_thread = ClientLogicThread()
 

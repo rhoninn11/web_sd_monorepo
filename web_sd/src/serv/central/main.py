@@ -1,6 +1,6 @@
 
 from core.system.MultiThreadingApp import MultiThreadingApp
-from core.threads.DiffusionServerThread import ServerThread
+from web_sd.src.core.threads.ServerThread import ServerThread
 
 from serv.central.CentralGradioInterface import CentralGradioInterface
 
@@ -19,7 +19,7 @@ class CentralServerApp(MultiThreadingApp):
         server_thread.config_host('localhost', server_port)
         gradio_thread = CentralGradioInterface() 
 
-        server_thread.bind_worker(logic_thread)
+        server_thread.bind_worker(logic_thread.out_queue, logic_thread.in_queue)
         gradio_thread.bind_config_reciver(logic_thread)
 
         # gradio thread block main thread - must be last on the list

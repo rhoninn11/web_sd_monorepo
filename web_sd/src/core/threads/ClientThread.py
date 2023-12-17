@@ -3,7 +3,7 @@ import socket, time
 from core.threads.ConnectionThread import ConnectionThread
 from core.utils.utils_except import traceback_info
 
-class DiffusionClientThread(ConnectionThread):
+class ClientThread(ConnectionThread):
     def __init__(self, name):
         ConnectionThread.__init__(self, name)
         self.host = 'localhost'

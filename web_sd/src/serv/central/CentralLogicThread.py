@@ -3,7 +3,7 @@ import time
 import json
 
 from core.utils.utils_thread import ThreadWrap, pipe_queue
-from core.threads.DiffusionClientThread import DiffusionClientThread
+from web_sd.src.core.threads.ClientThread import ClientThread
 
 from serv.central.EdgeWrapper import EdgeStats
 from serv.central.EdgeWrapper import EdgeWrapper
@@ -22,7 +22,7 @@ class EdgeManager():
         self.no_config = {}
 
     def spawn_edge(self, key, host, port):
-        new_client_thread = DiffusionClientThread(name=f"conn-{key}")
+        new_client_thread = ClientThread(name=f"conn-{key}")
         new_client_thread.config_host_dst(host, port)
         new_client_thread.start()
 
