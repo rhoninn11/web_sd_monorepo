@@ -25,8 +25,8 @@ class brocker_logic_thread(ThreadWrap):
         color_list = []
         samples = 10
         f1 = 1 #Hz
-        f2 = 2.13
-        f3 = 3.13
+        f2 = f1/1.68
+        f3 = f2/1.68
         for i in range(samples):
             tp = i/(samples-1) + self.last_data_gen_tp
             pos_val = (math.sin(2*3.14*f1*tp) + 1) * 0.5

@@ -26,10 +26,8 @@ class EegClient(MultiThreadingApp):
         eeg_source = eeg_source_thread()
         eeg_source.preview_data()
 
-
-        # gradio thread block main thread - must be last on the list
-        # threads = [data_gen_thread, eeg_client, tcp_thread_from_eeg]
-        # self.thread_launch(threads)
+        threads = [eeg_client, eeg_source]
+        self.thread_launch(threads)
 
         print("+++ edge server exit")
 

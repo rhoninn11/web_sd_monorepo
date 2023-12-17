@@ -13,6 +13,20 @@ def get_relevent_channesl(all_channels):
 
     return channels
 
+def cli_preview_data(few_ch):
+
+    few_eeg = eeg.pick_channels(few_ch)
+
+    data, times = few_eeg[:]
+
+    preview_samples = 50
+    print(f"+++ time preview: {times[:preview_samples]}")
+    for i, channel in enumerate(few_ch):
+        min_val = min(data[i])
+        max_val = max(data[i])
+        print(f"+++ channel {channel} preview: {data[i][:preview_samples]} range: {min_val} - {max_val}")
+
+
 def load_eeg_data():
     data_file = "fs/eeg_data.edf"
     eeg = mne.io.read_raw_edf(data_file, preload=True)
@@ -22,13 +36,9 @@ def load_eeg_data():
 
     data, times = few_eeg[:]
 
-    preview_samples = 50
+   
 
-    print(f"+++ time preview: {times[:preview_samples]}")
-    for i, channel in enumerate(few_ch):
-        min_val = min(data[i])
-        max_val = max(data[i])
-        print(f"+++ channel {channel} preview: {data[i][:preview_samples]} range: {min_val} - {max_val}")
+
 
 
 
@@ -39,15 +49,18 @@ class eeg_source_thread(ThreadWrap):
         fps = 30
         self.ttreshold = 1/fps
 
+        self.stream_flag = False
+
     def control_data_streaming(self):
         now = time.time()
         generate_next_data = now - self.last_data_gen_tp > self.ttreshold
         progress = 0
         if generate_next_data:
             self.last_data_gen_tp += self.ttreshold
-            new_data = self.data_gen()
-            self.out_queue.queue_item(new_data)
+            # new_data = self.data_gen()
+            # self.out_queue.queue_item(new_data)
             # print(f"+++ eeg data generated")
+            print(f"+++ eeg data: file read simulated")
             progress += 1
 
         return progress
@@ -56,7 +69,7 @@ class eeg_source_thread(ThreadWrap):
     def run(self):
         print(f"+++ stable diffusion thread ready")
         while self.run_cond:
-            progress = 0
+            progress = self.control_data_streaming()
             if progress == 0:
                 time.sleep(0.01)
 
