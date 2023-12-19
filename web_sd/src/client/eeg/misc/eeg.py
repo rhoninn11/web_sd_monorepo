@@ -14,7 +14,7 @@ def get_relevent_channesl(all_channels):
     return channels
 
 def cli_preview_data(eeg, few_ch, verbose=False):
-    few_eeg = eeg.pick_channels(few_ch)
+    few_eeg = eeg.pick(few_ch)
     data, times = few_eeg[:]
 
     sample_num = len(times)

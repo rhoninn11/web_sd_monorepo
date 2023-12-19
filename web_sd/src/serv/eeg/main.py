@@ -1,5 +1,5 @@
 from src.core.threads.ServerThread import ServerThread
-from serv.eeg_brocker.brocker_thread import brocker_logic_thread
+from brocker_thread import brocker_logic_thread
 
 from core.system.MultiThreadingApp import MultiThreadingApp
 from core.utils.utils_thread import pipe_queue

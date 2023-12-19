@@ -1,12 +1,13 @@
 import argparse
-
-import matplotlib.pyplot as plt
 import re
+
+from misc.eeg import load_eeg_data
+from data_thread import eeg_source_thread
+
 
 from src.core.system.MultiThreadingApp import MultiThreadingApp
 from src.core.threads.ClientThread import ClientThread
 
-from client.eeg_antena.data_thread import eeg_source_thread
 
 class EegClient(MultiThreadingApp):
     def __init__(self):
@@ -24,16 +25,16 @@ class EegClient(MultiThreadingApp):
         eeg_client.config_host_dst("localhost", args.serv_port)
 
         eeg_source = eeg_source_thread()
-        eeg_source.preview_data()
-
         threads = [eeg_client, eeg_source]
+
         self.thread_launch(threads)
 
         print("+++ edge server exit")
 
 
 def main():
-    edge_server = EegClient()
-    edge_server.run()
+    # edge_server = EegClient()
+    # edge_server.run()
+    load_eeg_data()
 
 main()

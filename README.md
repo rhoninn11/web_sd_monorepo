@@ -33,10 +33,7 @@ anaconda
 
 ```
 cd web_sd
-conda create -n web_sd_env python=3.10 (jeśli środowisko nie zostało wcześniej stworzone)
-conda activate web_sd_env
-pip install -r req.oai.txt (lub req.oai.txt)
-
+./script/00_create_env.ps1
 ```
 
 ### Uruchamianie aplikacji (windows powershell)
@@ -44,13 +41,13 @@ pip install -r req.oai.txt (lub req.oai.txt)
 
 ```
 cd web_sd
-./_activate.ps1
-./_run_edge.ps1 / ./_run_central.ps1
-
+./script/01_activate.ps1
+./script/02_run_central.ps1 lub ./script/03_run_edge.ps1
 ```
 ---
 ### EEG related
 
+#### instalacja oprogramowania:
 - zainstalować sobie [conda](https://www.anaconda.com/download/)
 - zainstalować sobie [git](https://git-scm.com/download/win)
 - zachęcam też do instalacji [vscode](https://code.visualstudio.com/)
@@ -60,14 +57,29 @@ conda init
 ```
 - zamknąć i na nowo uruchomić powershell, sprawdzić czy na początku linijki pojawiło się (base)
 - aktywacja środowiska:
+
+#### Uruchamianie aplikacji:
+
+Jeżeli środowisko conda nie zostało jeszcze stworzone uruchamiamy:
 ```
 cd web_sd
-# za pierwszym razem globalnie, nie wiem jak się zachowa bo nie testowałem,
-# ale powinno zadziałać
-./_create_env.ps1
-# za pierwszym razem jak siadasz do uruchomienia serwera
-./_activate.ps1
-# uruchomienie serwera
-python ./src/serv/eeg_brocker/main.py 4444
+./script/00_create_env.ps1
 ```
-- czasami serwer trzeba będzie zatrzymywać, bo się coś zwiesi po stronie blendra, serwer zatrzymujesz Ctrl+c
+Uruchomienia serwera eeg (terminal #1):
+```
+cd web_sd
+./script/01_activate.ps1
+python ./src/serv/eeg/main.py 4444 3333
+```
+Uruchomienia clienta eeg (terminal #2):
+
+```
+cd web_sd
+./script/01_activate.ps1
+python ./src/client/eeg/main.py 3333
+```
+
+Aplikacje zatrzymuje się klikając __ctrl+c__ :D
+
+#### Znane problemy
+Czasami serwer eeg lub blender się zwiesza, zazwyczaja restart serwera pomaga

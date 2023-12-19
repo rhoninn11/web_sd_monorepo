@@ -1,7 +1,6 @@
 
 import time, re
 from src.core.utils.utils_thread import ThreadWrap
-from misc.eeg import load_eeg_data
 
 class eeg_source_thread(ThreadWrap):
     def __init__(self, name="eeg_data_source"):
@@ -34,7 +33,4 @@ class eeg_source_thread(ThreadWrap):
             progress = self.control_data_streaming()
             if progress == 0:
                 time.sleep(0.01)
-
-    def preview_data(self):
-        load_eeg_data()
         
