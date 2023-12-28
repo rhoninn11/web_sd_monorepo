@@ -13,7 +13,7 @@ class EegClient(MultiThreadingApp):
     def __init__(self):
         MultiThreadingApp.__init__(self)
     
-    def run(self):
+    def run(self, eeg_data):
         print(f"+++ app start")
         parser = argparse.ArgumentParser(description="port (eg. 6203)")
         parser.add_argument("serv_port", help="server port", type=int)
