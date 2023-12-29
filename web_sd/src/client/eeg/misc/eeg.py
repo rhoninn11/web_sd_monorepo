@@ -74,11 +74,12 @@ def load_eeg_data():
     sfreq = eeg.info['sfreq']
     print(f"+++ sfreq: {sfreq}")
     driving_signals = calculate_mel(ours_ch, data, times) #10 Hz signal
-    plot_data(driving_signals)
+    # plot_data(driving_signals)
     driving_signals = normalize(driving_signals)
-    plot_data(driving_signals)
+    # plot_data(driving_signals)
     driving_signals = data_interpolation(driving_signals) #30 Hz signal
-    plot_data(driving_signals)
+    # plot_data(driving_signals)
 
+    return driving_signals
 
     

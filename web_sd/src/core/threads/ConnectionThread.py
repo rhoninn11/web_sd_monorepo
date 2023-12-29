@@ -12,7 +12,7 @@ class ConnectionThread(ConnectionThreadBase):
 
     def progress_balance(self, progress):
         if progress == 0:
-            time.sleep(0.1)
+            time.sleep(0.00333)
 
     def process_information(self, information_obj, out_pipe: pipe_queue):
         is_disconnect = "disconnect" in information_obj    

@@ -1,5 +1,5 @@
 from src.core.threads.ServerThread import ServerThread
-from brocker_thread import brocker_logic_thread
+from eeg_middleware_thread import eeg_middleware_thread
 
 from core.system.MultiThreadingApp import MultiThreadingApp
 from core.utils.utils_thread import pipe_queue
@@ -32,7 +32,7 @@ class EdgeServer(MultiThreadingApp):
         print(f"+++ app start")
 
         params = EegServParams(True)
-        data_gen_thread = brocker_logic_thread()
+        data_gen_thread = eeg_middleware_thread()
 
         tcp_thread_to_blender = ServerThread("edge_server")
         tcp_thread_to_blender.bind_worker(data_gen_thread.out_queue, pipe_queue("empty"))
