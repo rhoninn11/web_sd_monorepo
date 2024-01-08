@@ -4,6 +4,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from misc.mel import calculate_mel
+import json
 
 def get_relevent_channesl(all_channels):
     regex = r"C[0-9]+"
@@ -62,6 +63,43 @@ def data_interpolation(ranges):
 
     return ranges
 
+def comfy_ui_u2_lut(ranges):
+
+    ranges_tmp = []
+    for r in ranges:
+        ranges_tmp.append(r.copy())
+
+    value = {"delta": 1.3, "theta": 1.4, "alfa": 0.9, "beta": 0.2}
+
+    amp = 0.8
+    for r in ranges_tmp:
+        plot_data = r["plot"]
+        name = r["name"]
+        r["plot"] = [max(x*amp - amp/2.0 + value[name], 0) for x in plot_data]
+
+    return ranges_tmp
+
+
+def save_run_2_json(ranges, file_name):
+
+    delta = ranges[0]["plot"]
+    theta = ranges[1]["plot"]
+    alfa = ranges[2]["plot"]
+    beta = ranges[3]["plot"]
+
+    zip_data = zip(delta, theta, alfa, beta)
+    out_data = {
+        "names": ["b1", "b2", "s1", "s2"],
+        "data": []
+    }
+    for i, data in enumerate(zip_data):
+        # print(f"+++ {i}: {data}")
+        out_data["data"].append(data)
+
+    # write to json
+    with open(file_name, 'w') as outfile:
+        json.dump(out_data, outfile)
+    
 
 
 def load_eeg_data():
@@ -74,11 +112,11 @@ def load_eeg_data():
     sfreq = eeg.info['sfreq']
     print(f"+++ sfreq: {sfreq}")
     driving_signals = calculate_mel(ours_ch, data, times) #10 Hz signal
-    # plot_data(driving_signals)
     driving_signals = normalize(driving_signals)
-    # plot_data(driving_signals)
-    driving_signals = data_interpolation(driving_signals) #30 Hz signal
-    # plot_data(driving_signals)
+    # driving_signals = data_interpolation(driving_signals) #30 Hz signal
+
+    comfy = comfy_ui_u2_lut(driving_signals)
+    save_run_2_json(comfy, "fs/comfy.json")
 
     return driving_signals
 
