@@ -25,16 +25,21 @@ def pipeline_sync(base_pipeline: StableDiffusionXLPipeline, refiner_pipeline: St
         new_pipeline = init_txt2img_pipeline(base_pipeline, refiner_pipeline, device)
         pipeline.append(new_pipeline)
 
+def callback_dynamic_cfg(pipe, step_index, timestep, callback_kwargs):
+    print(f"step index: {step_index}, timestep: {timestep}")
+    return callback_kwargs
+
 def config_run(request, step_callback, device, src_data, run_it):
     config = request["config"]
     metadata = request["metadata"]
+
 
     run_in = { 
         "prompt": config["prompt"],
         "negative_prompt": config["prompt_negative"],
         
         "generator": init_generator(config["seed"] + run_it, device),
-        "callback": step_callback,
+        "callback_on_step_end ": callback_dynamic_cfg,
         "num_inference_steps": config["steps"],
         # for moe
         "output_type": "latent",
@@ -46,7 +51,7 @@ def config_run(request, step_callback, device, src_data, run_it):
         "negative_prompt": config["prompt_negative"],
         
         "generator": init_generator(config["seed"] + run_it, device),
-        "callback": step_callback,
+        "callback_on_step_end": callback_dynamic_cfg,
         "num_inference_steps": config["steps"],
         # for moe
         "denoising_start": 0.75,

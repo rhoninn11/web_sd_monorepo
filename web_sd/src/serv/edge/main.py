@@ -13,8 +13,8 @@ class EdgeServer(MultiThreadingApp):
     def run(self):
         print(f"+++ app start")
         parser = argparse.ArgumentParser(description="port (eg. 6203), device (eg. cuda)")
-        parser.add_argument("port", help="Twoje imię", type=int)
-        parser.add_argument("device", help="Twoje imię")
+        parser.add_argument("port", help="port that interface will be hosted", type=int)
+        parser.add_argument("device", help="cuda device number")
         args = parser.parse_args()
         print(f"+++ app start {args}")
 

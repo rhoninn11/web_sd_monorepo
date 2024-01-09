@@ -38,9 +38,9 @@ class ClientLogicThread(ThreadWrap):
         self.on_finish = None
         self.name = "txt2img"
 
-        self.sample_num = 1
+        self.sample_num = 3
         self.result_count = 0
-        self.start_moment = None
+        self.start_moment = time.perf_counter()
 
     def bind_wrapper(self, wrapper):
         self.client_wrapper = wrapper
@@ -67,36 +67,37 @@ class ClientLogicThread(ThreadWrap):
 
         return command
     
+    def generation_process(self, result):
+        if self.process_result(result):
+            self.result_count += 1
+
     def process_result(self, result):
         if result:
             if result["type"] == "progress":
                 result = json.loads(result["data"])
-                
-                if self.start_moment == None:
-                    self.start_moment = time.perf_counter()
                 print("Progress: ", result["progress"])
                 return False
 
             if result["type"] == self.name:
                 result = json.loads(result["data"])
 
-                real_time = time.perf_counter() - self.start_moment
                 metadata = result[self.name]["metadata"]
-                print(f"+++ eee yoo {metadata}, time: {real_time}")
+                print(f"+++ eee yoo {metadata}")
 
                 bulk_data = result[self.name]["bulk"]
                 simple_data_img = bulk_data["img"]
+                img_file = f"fs/out/{self.name}_{self.result_count}.png"
                 pil_img = simple_data2pil(simple_data_img)
-                pil_img.save(f"fs/out/{self.name}_{self.result_count}.png")
+                pil_img.save(img_file)
+                print(f"+++ Img saved to {img_file}")
                 return True
 
         return False
-    def loop_cond(self, result):
-        if self.process_result(result):
-            self.result_count += 1
-
-        finished = self.result_count >= self.sample_num
-        return not finished and self.run_cond
+    
+    
+    def do_finished(self):
+        finished_flag = self.result_count >= self.sample_num
+        return finished_flag
     
     def script(self):
         if self.client_wrapper == None:
@@ -105,9 +106,10 @@ class ClientLogicThread(ThreadWrap):
         command = self.prepare_command()
         self.client_wrapper.send_to_server(command)
         
-        result = None
-        while self.loop_cond(result):
+        while self.run_cond and not self.do_finished():
             result = self.client_wrapper.get_server_info()
+            self.generation_process(result)
+
             time.sleep(0.01)
 
         print("+++ task finished +++")
@@ -123,7 +125,7 @@ class ExampleClient(MultiThreadingApp):
     
     def run(self):
         client_thread = DiffusionClientThread(name="client-central")
-        client_thread.config_host_dst('localhost', 6203)
+        client_thread.config_host_dst('localhost', 6500)
         logic_thread = ClientLogicThread()
 
         client_wrapper = ClientWrapper()
@@ -139,5 +141,3 @@ def main():
     app.run()
 
 main()
-
-

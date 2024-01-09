@@ -50,7 +50,7 @@ class CentralGradioInterface():
 
     # thread inteface functions
     def start(self):
-        config_chat_history = gr.Chatbot().style(color_map=("blue", "grean"))
+        config_chat_history = gr.Chatbot()
         config_interface = gr.Interface(fn=self.prompt_config_chat,
             inputs=[
                     gr.Textbox(

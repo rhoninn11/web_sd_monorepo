@@ -25,6 +25,7 @@ class SDiffusionThread(ThreadWrap):
             if in_queue.queue_len() == 0:
                 time.sleep(0.1)
                 continue
-            
+            print(f"+++ new request")
             new_request = in_queue.dequeue_item()
+            print(f"+++ req: {new_request}")
             self.process_request(new_request)
