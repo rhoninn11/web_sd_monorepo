@@ -41,10 +41,6 @@ class TranslatorThread(ThreadWrap):
 
         print(type(goal))
         
-        # new_goal = {
-        #         'type': 'pol2ang',
-        #         'data': json.dumps(goal)  
-        # }
                 
         new_goal = {
                 'type': 'pol2ang',
