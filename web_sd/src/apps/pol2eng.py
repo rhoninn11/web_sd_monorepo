@@ -61,22 +61,20 @@ class ClientLogicThread(ThreadWrap):
         self.on_finish = callback
 
     def prepare_command(self):
-        sub_command = { self.name: { 
+
+        command = json.dumps({ 
+            "type": self.name,
+            "data": { self.name: { 
                 "metadata": { "id": f"{uuid.uuid4()}"}, #"from pol2ang.py"
                 "config": {
                     "input_language": "PL",
                     "goal_language": "ENG",
                     "text_to_translate": self.text_to_translate,
                     "translated_text": ""
-                },
-            } 
-        }
-
-        command = { 
-            "type": self.name,
-            "data": json.dumps(sub_command)
-        }
-
+                    },
+                } 
+            }
+        })
         return command
     
     def process_result(self, result):
@@ -88,10 +86,10 @@ class ClientLogicThread(ThreadWrap):
                 return False
 
             if result["type"] == self.name:
-                result = json.loads(result["data"])
+
                 real_time = time.perf_counter() - self.start_moment
-                metadata = result["tekst_eng"]
-                print(f"+++++++++++++++++++ eee yoo: \n{metadata} \ntime: {real_time} \n+++++++++++++++++++\n")
+                translation = result["data"]["pol2ang"]["config"]["translated_text"]
+                print(f"+++++++++++++++++++ eee yoo: \n{translation} \ntime: {real_time} \n+++++++++++++++++++\n")
 
                 return True
 

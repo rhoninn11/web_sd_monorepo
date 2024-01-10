@@ -14,8 +14,10 @@ class TranslatorThread(ThreadWrap):
 
     def process_request(self, request):
 
-        request_data = json.loads(request['data'])
-        # print(type(request_data))
+        request = json.loads(request)
+        print(type(request))
+        request_data = request['data']
+        print(type(request_data))
         uuid = request_data['pol2ang']['metadata']['id']
         src_lang = request_data['pol2ang']['config']['input_language']
         dst_lang = request_data['pol2ang']['config']['goal_language']
@@ -37,23 +39,37 @@ class TranslatorThread(ThreadWrap):
         print("#######################################")
         print(f">>>>>>>>Translated: {goal}")
 
+        print(type(goal))
+        
+        # new_goal = {
+        #         'type': 'pol2ang',
+        #         'data': json.dumps(goal)  
+        # }
+                
         new_goal = {
                 'type': 'pol2ang',
-                'data': json.dumps(goal)  
-        }
+                'data': { 'pol2ang': {
+                            'metadata': { 'id' : uuid},
+                            'config' : {
+                                 'input_language': 'PL', 
+                                 'goal_language': 'ENG', 
+                                 'text_to_translate': goal['text_pl'], 
+                                 'translated_text': goal['text_eng'] 
+        }}}}
+
+        print(f"_________New_goal:")
+        print(new_goal)
+        print(type(new_goal))
 
         # Dane z request:
-        # {
-        # pol2ang: { 
-        #         "metadata": { "id": f"{uuid.uuid4()}"},
-        #         "config": {
-        #             "input_language": "PL",
-        #             "goal_language": "ENG",
-        #             "text_to_translate": self.text_to_translate,
-        #             "translated_text": ""
-        #         },
-        #     } 
-        # }
+        # {'type': 'pol2ang', 
+        #  'data': {'pol2ang': {
+        #          'metadata': {'id': '2e7155a2-83fb-4940-9c4e-e41af3c599ba'},
+        #          'config': {'input_language': 'PL', 
+        #                     'goal_language': 'ENG', 
+        #                     'text_to_translate': 'Ale bym zjadĹ‚ ciastko', 
+        #                     'translated_text': ''
+        #}}}}
 
        
         self.out_queue.queue_item(new_goal)

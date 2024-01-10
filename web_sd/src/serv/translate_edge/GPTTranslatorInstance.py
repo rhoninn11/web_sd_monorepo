@@ -1,5 +1,4 @@
 from openai import OpenAI
-
 import os
 import json
 
@@ -22,12 +21,12 @@ class GPTTranlatorInstation:
                                 "type": "string",
                                 "description": "Tłumaczenie wielkiego tłumacza język na polski",
                             },
-                            "tekst_eng": {
+                            "text_eng": {
                                 "type": "string",
                                 "description": "Tłumaczenie wielkiego tłumacza język na angielski",
                             }
                         },
-                        "required": ["text_pl", "tekst_eng"],
+                        "required": ["text_pl", "text_eng"],
                     },
                 }
             },
@@ -44,7 +43,7 @@ class GPTTranlatorInstation:
         
         translation_result = {
             "text_pl": "brak",
-            "tekst_eng": "missing",
+            "text_eng": "missing",
         }
         response_message = self.client.chat.completions.create(model="gpt-3.5-turbo-0613",
             messages=messages,
