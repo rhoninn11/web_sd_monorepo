@@ -61,7 +61,7 @@ class GPTTranlatorInstation:
 
 
 
-        print(f"+++ <TO_ZWRACAM> +++ {translation_result}")
+        #print(f"+++ <TO_ZWRACAM> +++ {translation_result}")
 
         return translation_result
 

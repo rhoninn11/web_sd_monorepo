@@ -42,7 +42,7 @@ class ClientWrapper():
 
 class ClientLogicThread(ThreadWrap):
 
-    def __init__(self, text_to_translate, **kwargs):
+    def __init__(self, infile_to_translate, **kwargs):
         ThreadWrap.__init__(self)
         self.client_wrapper = None
         self.on_finish = None
@@ -52,7 +52,7 @@ class ClientLogicThread(ThreadWrap):
         self.result_count = 0
         self.start_moment = None
 
-        self.text_to_translate = text_to_translate
+        self.infile_to_translate = infile_to_translate
 
     def bind_wrapper(self, wrapper):
         self.client_wrapper = wrapper
@@ -60,7 +60,7 @@ class ClientLogicThread(ThreadWrap):
     def bind_on_finish(self, callback):
         self.on_finish = callback
 
-    def prepare_command(self):
+    def prepare_command(self, text_to_translate):
 
         command = json.dumps({ 
             "type": self.name,
@@ -69,7 +69,7 @@ class ClientLogicThread(ThreadWrap):
                 "config": {
                     "input_language": "PL",
                     "goal_language": "ENG",
-                    "text_to_translate": self.text_to_translate,
+                    "text_to_translate": text_to_translate,
                     "translated_text": ""
                     },
                 } 
@@ -104,16 +104,21 @@ class ClientLogicThread(ThreadWrap):
     def script(self):
         if self.client_wrapper == None:
             return
-
-        command = self.prepare_command()
-        self.client_wrapper.send_to_server(command)
         
-        result = None
-        while self.loop_cond(result):
-            result = self.client_wrapper.get_server_info()
-            time.sleep(0.01)
+        translation_statuses = [False] * len(self.infile_to_translate)
 
-        print("+++ task finished +++")
+        for i, it in enumerate(self.infile_to_translate):
+            command = self.prepare_command(text_to_translate=it['input_text'])
+            self.client_wrapper.send_to_server(command)
+
+            while not translation_statuses[i]:
+                result = self.client_wrapper.get_server_info()
+                if result:
+                    translation_statuses[i] = self.process_result(result)
+                time.sleep(0.01)
+            print("+++ task finished +++")
+
+        print("!!!!_TASKS_FINISHED_!!!")
 
     def run(self):
         self.script()
@@ -121,14 +126,14 @@ class ClientLogicThread(ThreadWrap):
             self.on_finish()
         
 class ExampleClient(MultiThreadingApp):
-    def __init__(self, text):
+    def __init__(self, infile_to_translate):
         MultiThreadingApp.__init__(self)
-        self.text = text
+        self.infile_to_translate = infile_to_translate 
 
     def run(self):
         client_thread = DiffusionClientThread(name="translate-client-central")  #powinien się nazywać just ClientThread
         client_thread.config_host_dst('localhost', 6203)              #communication port
-        logic_thread = ClientLogicThread(text_to_translate=self.text)                            
+        logic_thread = ClientLogicThread(infile_to_translate =self.infile_to_translate)                            
 
         client_wrapper = ClientWrapper()                              #podłącza wątek, wysyła na serwer, zbiera info z serwera
         client_wrapper.bind_client_thread(client_thread)
@@ -141,10 +146,8 @@ class ExampleClient(MultiThreadingApp):
 def main():
     print("#####################################")
     data_to_translate = pars_input_file(input_file_path)
-    print("#####################################")
-    for it in data_to_translate:
-        app = ExampleClient(text = it['input_text'])
-        app.run() 
+    app = ExampleClient(infile_to_translate = data_to_translate)
+    app.run() 
     print("#########THATS_ALL_-_GOODBYE############")
 main()
 

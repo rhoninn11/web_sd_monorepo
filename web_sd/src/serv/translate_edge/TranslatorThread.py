@@ -15,9 +15,8 @@ class TranslatorThread(ThreadWrap):
     def process_request(self, request):
 
         request = json.loads(request)
-        print(type(request))
         request_data = request['data']
-        print(type(request_data))
+
         uuid = request_data['pol2ang']['metadata']['id']
         src_lang = request_data['pol2ang']['config']['input_language']
         dst_lang = request_data['pol2ang']['config']['goal_language']
@@ -39,7 +38,7 @@ class TranslatorThread(ThreadWrap):
         print("#######################################")
         print(f">>>>>>>>Translated: {goal}")
 
-        print(type(goal))
+        #print(type(goal))
         
                 
         new_goal = {
@@ -53,9 +52,9 @@ class TranslatorThread(ThreadWrap):
                                  'translated_text': goal['text_eng'] 
         }}}}
 
-        print(f"_________New_goal:")
-        print(new_goal)
-        print(type(new_goal))
+        print(f"+++ Full request :")
+        print(json.dumps(new_goal, indent=4))
+        print("#######################################")
 
         # Dane z request:
         # {'type': 'pol2ang', 
