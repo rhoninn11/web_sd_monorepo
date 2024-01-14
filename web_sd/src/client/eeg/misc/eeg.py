@@ -108,16 +108,18 @@ def load_eeg_data():
     # mne_test(eeg)
     ours_ch = get_relevent_channesl(eeg.ch_names)
     print(f"+++ ours ch: {ours_ch}")
-    data, times = cli_preview_data(eeg, ours_ch)
+    ch_data, times = cli_preview_data(eeg, ours_ch)
     sfreq = eeg.info['sfreq']
     print(f"+++ sfreq: {sfreq}")
-    driving_signals = calculate_mel(ours_ch, data, times) #10 Hz signal
-    driving_signals = normalize(driving_signals)
+    all_electrodes_signal = calculate_mel(ours_ch, ch_data, times) #10 Hz signal
+
+    one_electrod_signal = all_electrodes_signal[0]
+    one_electrod_signal = normalize(one_electrod_signal)
     # driving_signals = data_interpolation(driving_signals) #30 Hz signal
 
-    comfy = comfy_ui_u2_lut(driving_signals)
+    comfy = comfy_ui_u2_lut(one_electrod_signal)
     save_run_2_json(comfy, "fs/comfy.json")
 
-    return driving_signals
+    return one_electrod_signal
 
     

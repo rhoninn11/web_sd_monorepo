@@ -11,69 +11,71 @@ def normalize(data):
     amp = 1/delta
 
     # data = [(x - min_val)*amp for x in data]
-    return np.array(data)
+    data = data * amp
+    return data
 
-ranges = [
-    {"name": "delta", "f_s": 0.5, "f_e": 4.0, "idx_s": 0, "idx_e": 0},
-    {"name": "theta", "f_s": 4.0, "f_e": 8.0, "idx_s": 0, "idx_e": 0},
-    {"name": "alfa", "f_s": 8.0, "f_e": 13.0, "idx_s": 0, "idx_e": 0},
-    {"name": "beta", "f_s": 13.0, "f_e": 30.0, "idx_s": 0, "idx_e": 0},
-]
+def get_buckets_template():
+    ranges = [
+        {"name": "delta", "f_s": 0.5, "f_e": 4.0, "idx_s": 0, "idx_e": 0},
+        {"name": "theta", "f_s": 4.0, "f_e": 8.0, "idx_s": 0, "idx_e": 0},
+        {"name": "alfa", "f_s": 8.0, "f_e": 13.0, "idx_s": 0, "idx_e": 0},
+        {"name": "beta", "f_s": 13.0, "f_e": 30.0, "idx_s": 0, "idx_e": 0},
+    ]
+    return ranges
 
-def calculate_mel(ch_namse, data, times):
-    print(f"+++ mel calculation")
+def wave_to_mel_processing(waveform_data, sampling_rate: int):
 
-    ch = ch_namse[0]
-    ch_data = normalize(data[0])
+    # waveform_data = normalize(waveform_data)
 
-    sampling_rate = 160
-    ch_s_chunk = ch_data
-
-    # plt.plot(times_s_chunk, ch_s_chunk)
+    # check waveform
+    # plt.plot(waveform_data)
     # plt.show()
 
-    signal = librosa.feature.melspectrogram(y=ch_s_chunk, sr=sampling_rate, n_fft=512, hop_length=16)
+    signal = librosa.feature.melspectrogram(y=waveform_data, sr=sampling_rate, n_fft=256, hop_length=16)
     signal_db = librosa.power_to_db(signal, ref=np.max)
 
-    print(signal.shape)
-    print(signal_db.shape)
-
-    # plt.plot(signal_db)
+    # brutal preprocessing
+    treshold_lvl = -40
+    signal_db[signal_db < treshold_lvl] = treshold_lvl
+    signal_db = signal_db - treshold_lvl
+    
+    # check mel spectrogram
+    # librosa.display.specshow(signal_db, sr=sampling_rate, hop_length=16, x_axis='time', y_axis='mel')
+    # plt.colorbar(format='%+2.0f dB')
+    # plt.title('Mel spectrogram')
     # plt.show()
 
-    # clamp lower then -30 db
-    signal_db[signal_db < -30] = -30
-    signal_db = signal_db + 30
+    return signal_db
 
 
-    # mel has 128 bins spread on 80hz
-    # for ranges get array indices
+def put_in_neuro_backets(mel_signal):
+
     f_delta = 80/128
-    for r in ranges:
+    # mel has 128 bins spread on 80hz
+    # (automatic or from n_fft?)
+    # for ranges get array indices
+    buckets = get_buckets_template()
+    for r in buckets:
         r["idx_s"] = math.ceil(r["f_s"]/f_delta)
         r["idx_e"] = math.ceil(r["f_e"]/f_delta)
 
-    for r in ranges:
-        proxy = signal_db[r["idx_s"]:r["idx_e"]]
+    for r in buckets:
+        proxy = mel_signal[r["idx_s"]:r["idx_e"]]
         t_proxy = np.transpose(proxy)
         plot_values = [np.sum(x) for x in t_proxy]
         r["plot"] = plot_values
 
-    # for each range create plot on the singel matplot lib figure
-
-    return ranges
+    return buckets
 
 
-    # # print(ranges)
-        
+def calculate_mel(channle_names, channel_data, times):
+    print(f"+++ mel calculation")
+    sampling_rate = 160
 
-    # plt.figure(figsize=(10, 4))
-    # librosa.display.specshow(signal_db, sr=sampling_rate, x_axis='time', y_axis='mel')
-    # plt.colorbar(format='%+2.0f dB')
-    # plt.title('Mel Spectrogram')
-    # plt.tight_layout()
-    # plt.show()
+    channel_buckets = []
+    for wave_data in channel_data:
+        mel_signal = wave_to_mel_processing(wave_data, sampling_rate)
+        neuro_buckets = put_in_neuro_backets(mel_signal)
+        channel_buckets.append(neuro_buckets)
 
-    # print(f"from mel calculation")
-
-    # print(f"+++ data for {ch}: {ch_data}")
+    return channel_buckets
