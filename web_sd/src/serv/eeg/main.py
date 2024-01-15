@@ -14,8 +14,8 @@ class EegServParams():
         recv_port - for headset (eg. 3333)
         '''
         parser = argparse.ArgumentParser(description=help_desc)
-        parser.add_argument("send_port", help="sender port", type=int)
-        parser.add_argument("recv_port", help="reciver port", type=int)
+        parser.add_argument("send_port", help="port for data sending server", type=int)
+        parser.add_argument("recv_port", help="port for data reciveing server", type=int)
         args = parser.parse_args()
 
         self.send_port = args.send_port

@@ -20,25 +20,6 @@ class eeg_middleware_thread(ThreadWrap):
         self.dp_per_sec = 0
         self.dp_mesure_tp = time.time()
     
-    def data_gen(self):
-        pos_list = []
-        scale_list = []
-        color_list = []
-        samples = 10
-        f1 = 1 #Hz
-        f2 = f1/1.68
-        f3 = f2/1.68
-        for i in range(samples):
-            tp = i/(samples-1) + self.last_data_gen_tp
-            pos_val = (math.sin(2*3.14*f1*tp) + 1) * 0.5
-            scale_val = (math.sin(2*3.14*f2*tp) + 1) * 0.5
-            color_val = (math.sin(2*3.14*f3*tp) + 1) * 0.5
-            pos_list.append(pos_val)
-            scale_list.append(scale_val)
-            color_list.append(color_val)
-
-        return [pos_list, scale_list, color_list]
-    
     def pass_data(self, data):
         if len(self.history) == 0:
             self.history.populate_history(data)
@@ -58,7 +39,6 @@ class eeg_middleware_thread(ThreadWrap):
                 data_point = self.in_queue.dequeue_item()
                 self.dp_per_sec += 1
 
-                # new_data = self.data_gen() # previous method
                 new_data = self.pass_data(data_point)
                 self.out_queue.queue_item(new_data)
 

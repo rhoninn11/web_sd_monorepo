@@ -63,7 +63,7 @@ def put_in_neuro_backets(mel_signal):
         proxy = mel_signal[r["idx_s"]:r["idx_e"]]
         t_proxy = np.transpose(proxy)
         plot_values = [np.sum(x) for x in t_proxy]
-        r["plot"] = plot_values
+        r["plot"] = np.array(plot_values)
 
     return buckets
 

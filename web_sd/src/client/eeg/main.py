@@ -16,8 +16,8 @@ class EegClient(MultiThreadingApp):
     
     def run(self, eeg_data):
         print(f"+++ app start")
-        parser = argparse.ArgumentParser(description="port (eg. 6203)")
-        parser.add_argument("serv_port", help="server port", type=int)
+        parser = argparse.ArgumentParser(description="Eeg client that sends eeg data from file")
+        parser.add_argument("serv_port", help="server port to connect to", type=int)
         args = parser.parse_args()
         print(f"+++ app start {args}")
 

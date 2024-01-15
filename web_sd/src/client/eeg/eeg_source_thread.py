@@ -24,19 +24,29 @@ class eeg_source_thread(ThreadWrap):
         self.queue_data_in = in_data_stream
         self.queue_data_out = out_data_stream
 
-    def read_data_point(self):
-        data_point = []
-        for f_range in self.eeg_data[0:3]:
-            name = f_range["name"]
+    def sample_at_index(self, buckets, index: int):
+        buckets_sample = []
+        for f_range in buckets:
             plot = f_range["plot"]
-            data_point.append(plot[self.data_idx])
+            buckets_sample.append(plot[index])
 
+        return buckets_sample
+    
+    def move_forward(self):
         self.data_idx += 1
         if self.data_idx >= self.data_len:
-            print(f"+++ {self.name}: data looped")
             self.data_idx = 0
+            print(f"+++ {self.name}: data looped")
 
-        return data_point
+    def read_data_point(self):
+
+        all_chann_sample = []
+        for buckets in self.eeg_data:
+            bucket_sample = self.sample_at_index(buckets, self.data_idx)
+            all_chann_sample.append(bucket_sample)
+
+        self.move_forward()
+        return all_chann_sample[0]
 
     def control_data_streaming(self):
         now = time.time()
@@ -51,9 +61,10 @@ class eeg_source_thread(ThreadWrap):
 
         return progress
     
-    def attach_data_to_stream(self, data):
-        self.eeg_data = data
-        self.data_len = len(data[0]["plot"])
+    def attach_data_to_stream(self, signals):
+        self.eeg_data = signals
+        probe_bucket = signals[0]
+        self.data_len = len(probe_bucket[0]["plot"])
         self.data_idx = 0
 
     def stat_log(self):
