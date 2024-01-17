@@ -6,7 +6,7 @@ class eeg_source_thread(ThreadWrap):
     def __init__(self, name="eeg_data_source"):
         ThreadWrap.__init__(self, name)
         self.last_data_gen_tp = time.time()
-        fps = 30
+        fps = 2
         self.ttreshold = 1/fps
         self.stream_flag = False
         
@@ -41,12 +41,13 @@ class eeg_source_thread(ThreadWrap):
     def read_data_point(self):
 
         all_chann_sample = []
+        print(F"+++ len of eeg_data: {len(self.eeg_data)}")
         for buckets in self.eeg_data:
             bucket_sample = self.sample_at_index(buckets, self.data_idx)
             all_chann_sample.append(bucket_sample)
 
         self.move_forward()
-        return all_chann_sample[0]
+        return all_chann_sample
 
     def control_data_streaming(self):
         now = time.time()

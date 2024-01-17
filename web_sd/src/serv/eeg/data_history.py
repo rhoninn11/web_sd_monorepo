@@ -1,27 +1,25 @@
 
-
+import numpy as np
 
 class data_history():
     def __init__(self, history_len=10):
-        self.history = []
+        self.history = np.array([])
         self.history_len = history_len
 
     def __len__(self):
         return len(self.history)
 
     def populate_history(self, data):
-        for i in range(len(data)):
-            self.history.append([data[i]]*self.history_len)
-
-        print(f"+++ history populated: {self.history}")
+        self.history = np.tile(data, (self.history_len, 1, 1))
+        # print(f"+++ history populated: {self.history}")
 
     def store_data_point(self, data):
-        for i in range(len(data)):
-            self.history[i].pop(0)
-            self.history[i].append(data[i])
-
-    def get_history_copy(self):
-        copy_of_history = []
-        for i in range(len(self.history)):
-            copy_of_history.append(self.history[i].copy())
-        return copy_of_history
+        data2fit = np.expand_dims(data, 0)
+        self.history = np.concatenate((self.history, data2fit), axis=0)
+        self.history = self.history[1:]
+        # print(f"+++ history updated: {self.history}")
+    
+    def get_last_value(self):
+        last_value = self.history[-1]
+        # print(f"+++ history last value: {last_value}")
+        return last_value
