@@ -101,24 +101,32 @@ class ClientLogicThread(ThreadWrap):
         finished = self.result_count >= self.sample_num
         return not finished and self.run_cond
     
+    def handle_translation(self, trans, index):
+
+        if self.run_cond == False:
+                return
+        
+        command = self.prepare_command(text_to_translate=index['input_text'])
+        self.client_wrapper.send_to_server(command)
+
+        while not self.translation_statuses[trans] and self.run_cond ==True:
+            result = self.client_wrapper.get_server_info()
+            if result:
+                self.translation_statuses[trans] = self.process_result(result)
+            time.sleep(0.01)
+        print("+++ task finished +++")
+
+
     def script(self):
-        if self.client_wrapper == None:
+        if self.client_wrapper is None or self.run_cond == False:
             return
         
-        translation_statuses = [False] * len(self.infile_to_translate)
+        self.translation_statuses = [False] * len(self.infile_to_translate)
 
         for i, it in enumerate(self.infile_to_translate):
-            command = self.prepare_command(text_to_translate=it['input_text'])
-            self.client_wrapper.send_to_server(command)
-
-            while not translation_statuses[i]:
-                result = self.client_wrapper.get_server_info()
-                if result:
-                    translation_statuses[i] = self.process_result(result)
-                time.sleep(0.01)
-            print("+++ task finished +++")
-
+            self.handle_translation(i ,it)
         print("!!!!_TASKS_FINISHED_!!!")
+
 
     def run(self):
         self.script()
