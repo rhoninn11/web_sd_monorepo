@@ -19,8 +19,24 @@ class MultiThreadingApp():
         for t in self.thread_list_ref:
             t.stop()
 
-    def bind_threads(self, thread_list):
+    def bind_threads(self, thread_list: list):
         self.thread_list_ref = thread_list
+        blocking_list = []
+        for i, t in enumerate(self.thread_list_ref):
+            if t.is_blocking():
+                blocking_list.append({"i": i, "t": t})
+
+        blc_num = len(blocking_list)
+        if blc_num == 0:
+            return
+        
+        if blc_num > 1:
+            print(f"!!! CRITICAL: no more then one! | blocking thread num [{blc_num}]")
+            return
+            
+        block = blocking_list[0]
+        self.thread_list_ref.pop(block["i"])
+        self.thread_list_ref.append(block["t"])
 
     def blocking(self):
         last_thread = self.thread_list_ref[-1]

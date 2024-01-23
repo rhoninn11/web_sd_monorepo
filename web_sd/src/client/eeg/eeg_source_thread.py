@@ -6,7 +6,7 @@ class eeg_source_thread(ThreadWrap):
     def __init__(self, name="eeg_data_source"):
         ThreadWrap.__init__(self, name)
         self.last_data_gen_tp = time.time()
-        fps = 2
+        fps = 30
         self.ttreshold = 1/fps
         self.stream_flag = False
         

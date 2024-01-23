@@ -26,7 +26,7 @@ class stat_counter():
 class eeg_middleware_thread(ThreadWrap):
     def __init__(self, name="eeg_middleware"):
         ThreadWrap.__init__(self, name=name)
-        self.fps = 2
+        self.fps = 30
         self.frame_time = 1/self.fps
         self.last_frame_timestamp = time.time()
 

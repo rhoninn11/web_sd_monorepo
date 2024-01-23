@@ -4,7 +4,6 @@ from core.system.MultiThreadingApp import MultiThreadingApp
 from core.utils.utils_thread import pipe_queue
 
 from eeg_middleware_thread import eeg_middleware_thread
-from eeg_display_thread import eeg_display_thread
 
 import argparse
 
@@ -35,8 +34,6 @@ class EdgeServer(MultiThreadingApp):
 
         params = EegServParams(True)
         middleware_thread = eeg_middleware_thread()
-        display_thread = eeg_display_thread()
-        display_thread.bind_history(middleware_thread.history)
 
         tcp_thread_to_blender = ServerThread("edge_server")
         tcp_thread_to_blender.bind_worker(middleware_thread.out_queue, pipe_queue("empty"))
@@ -46,7 +43,7 @@ class EdgeServer(MultiThreadingApp):
         tcp_thread_from_eeg.bind_worker(pipe_queue("empty"), middleware_thread.in_queue)
         tcp_thread_from_eeg.config_host("localhost", params.recv_port)
 
-        threads = [display_thread, middleware_thread, tcp_thread_to_blender, tcp_thread_from_eeg]
+        threads = [middleware_thread, tcp_thread_to_blender, tcp_thread_from_eeg]
         self.thread_launch(threads)
 
         print("+++ edge server exit")

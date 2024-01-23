@@ -21,10 +21,10 @@ class EegClient(MultiThreadingApp):
         args = parser.parse_args()
         print(f"+++ app start {args}")
 
-        eeg_client = ClientThread("eeg data client")
+        eeg_client = ClientThread("eeg_sender")
         eeg_client.config_host_dst("localhost", args.serv_port)
 
-        eeg_source = eeg_source_thread()
+        eeg_source = eeg_source_thread("eeg_data_source")
         eeg_source.attach_data_to_stream(eeg_data)
         eeg_source.bind_worker(pipe_queue("empty"), eeg_client.in_queue)
 

@@ -1,4 +1,4 @@
-from web_sd.src.core.threads.ServerThread import ServerThread
+from core.threads.ServerThread import ServerThread
 from serv.edge.SDiffusionThread import SDiffusionThread
 
 from core.system.MultiThreadingApp import MultiThreadingApp
