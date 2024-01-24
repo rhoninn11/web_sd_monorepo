@@ -13,10 +13,10 @@ class TranslatorEdgeServer(MultiThreadingApp):
     
     def run(self):
         print(f"+++ translator app start")
-        parser = argparse.ArgumentParser(description="port (eg. 6203)")
-        parser.add_argument("port", help="Twoje imię", type=int)
+        parser = argparse.ArgumentParser(description="Server for translation service based on GPT")
+        parser.add_argument("port", help="port os host server on", type=int) #6203
         args = parser.parse_args()
-        print(f"+++ app start {args}")
+        print(f"+++ app start with args: {args}")
 
         translator_tread = TranslatorThread()
         tcp_thread = ServerThread("edge_server")

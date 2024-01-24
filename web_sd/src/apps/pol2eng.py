@@ -1,7 +1,6 @@
-import time
-import json
-import uuid
-import os
+import os, time
+import uuid, json
+import argparse
 
 from core.utils.utils_thread import ThreadWrap
 from core.threads.DiffusionClientThread import DiffusionClientThread
@@ -190,8 +189,14 @@ class ExampleClient(MultiThreadingApp):
         self.infile_to_translate = infile_to_translate 
 
     def run(self):
+        print(f"+++ translator app start")
+        parser = argparse.ArgumentParser(description="Remote client for translation service based on GPT")
+        parser.add_argument("port", help="server port to connect to", type=int) #6203
+        args = parser.parse_args()
+        print(f"+++ app start with args: {args}")
+
         client_thread = DiffusionClientThread(name="translate-client-central")  #powinien się nazywać just ClientThread
-        client_thread.config_host_dst('localhost', 6203)              
+        client_thread.config_host_dst('localhost', args.port)              #communication port
         logic_thread = ClientLogicThread(infile_to_translate =self.infile_to_translate)                            
 
         client_wrapper = ClientWrapper()          #podłącza wątek, wysyła na serwer, zbiera info z serwera
