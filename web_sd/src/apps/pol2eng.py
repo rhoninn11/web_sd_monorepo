@@ -11,12 +11,48 @@ from core.system.MultiThreadingApp import MultiThreadingApp
 script_directory = os.path.dirname(os.path.abspath(__file__))
 project_directory = os.path.abspath(os.path.join(script_directory, "..", ".."))
 input_file_path = os.path.join(project_directory, "fs", "input.json")
+output_file_path = os.path.join(project_directory, "fs", "output.json")
 
+
+def check_files(in_file, out_file):
+    try:
+        with open(in_file, "r") as json_file:
+            input_data = json.load(json_file)
+        if not input_data:  
+            print("!!!Error - input.json is empty!!!")
+    except FileNotFoundError:  
+        print("!!!Error - missing file input.json") 
+    except json.JSONDecodeError:
+        print("!!!Error - input.json is not a valid JSON")
+
+    if not os.path.exists(out_file):
+        try:
+            with open(out_file, "w") as json_file:
+                json.dump([], json_file)  
+        except Exception as e:
+            print(f"!!!Error while creating {out_file}: {e}")
+
+    return
 
 def pars_input_file(in_file_path):
     with open(in_file_path, "r") as json_file:
         parsed_input = json.load(json_file)
     return parsed_input
+
+def save_trans_to_file(message, out_file):
+    try:
+        with open(out_file, "r") as json_file:
+            previous_outfile = json.load(json_file)
+
+        previous_outfile.append(message)
+
+        with open(out_file, "w") as json_file:
+            json.dump(previous_outfile, json_file, indent=4)
+
+    except Exception as e:
+        print(f"Error while saving to file: {e}")
+    return 
+
 
 class ClientWrapper():
     def __init__(self, **kwargs):
@@ -77,6 +113,18 @@ class ClientLogicThread(ThreadWrap):
         })
         return command
     
+    def prepare_result_to_save(self, result):
+        id = result["data"]["pol2ang"]["metadata"]["id"]
+        in_txt = result["data"]["pol2ang"]["config"]["text_to_translate"]
+        out_txt = result["data"]["pol2ang"]["config"]["translated_text"]
+        message = {
+                    "id": id,
+                    "input_text": in_txt,
+                    "translated_text": out_txt
+                    }
+        return message
+
+    
     def process_result(self, result):
         if result:
             if result["type"] == "progress":
@@ -90,10 +138,13 @@ class ClientLogicThread(ThreadWrap):
                 real_time = time.perf_counter() - self.start_moment
                 translation = result["data"]["pol2ang"]["config"]["translated_text"]
                 print(f"+++++++++++++++++++ eee yoo: \n{translation} \ntime: {real_time} \n+++++++++++++++++++\n")
-
+                message = self.prepare_result_to_save(result)
+                save_trans_to_file(message, output_file_path)
                 return True
 
         return False
+    
+
     def loop_cond(self, result):
         if self.process_result(result):
             self.result_count += 1
@@ -140,10 +191,10 @@ class ExampleClient(MultiThreadingApp):
 
     def run(self):
         client_thread = DiffusionClientThread(name="translate-client-central")  #powinien się nazywać just ClientThread
-        client_thread.config_host_dst('localhost', 6203)              #communication port
+        client_thread.config_host_dst('localhost', 6203)              
         logic_thread = ClientLogicThread(infile_to_translate =self.infile_to_translate)                            
 
-        client_wrapper = ClientWrapper()                              #podłącza wątek, wysyła na serwer, zbiera info z serwera
+        client_wrapper = ClientWrapper()          #podłącza wątek, wysyła na serwer, zbiera info z serwera
         client_wrapper.bind_client_thread(client_thread)
         logic_thread.bind_wrapper(client_wrapper)
         logic_thread.bind_on_finish(self.exit_fn)
@@ -153,6 +204,7 @@ class ExampleClient(MultiThreadingApp):
 
 def main():
     print("#####################################")
+    check_files(input_file_path, output_file_path)
     data_to_translate = pars_input_file(input_file_path)
     app = ExampleClient(infile_to_translate = data_to_translate)
     app.run() 

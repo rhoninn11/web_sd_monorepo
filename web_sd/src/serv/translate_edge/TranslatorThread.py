@@ -64,7 +64,7 @@ class TranslatorThread(ThreadWrap):
         #                     'goal_language': 'ENG', 
         #                     'text_to_translate': 'Ale bym zjadĹ‚ ciastko', 
         #                     'translated_text': ''
-        #}}}}
+        # }}}}
 
        
         self.out_queue.queue_item(new_goal)
