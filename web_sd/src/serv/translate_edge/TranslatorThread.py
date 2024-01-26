@@ -14,12 +14,15 @@ class TranslatorThread(ThreadWrap):
 
     def process_request(self, request):
 
-        request_data = json.loads(request['data'])
-        # print(type(request_data))
-        uuid = request_data['pol2ang']['metadata']['id']
-        src_lang = request_data['pol2ang']['config']['input_language']
-        dst_lang = request_data['pol2ang']['config']['goal_language']
-        text  = request_data['pol2ang']['config']['text_to_translate']
+        request = json.loads(request)
+        request_data = request['data']
+
+        name = "pol2eng"
+
+        uuid = request_data[name]['metadata']['id']
+        src_lang = request_data[name]['config']['input_language']
+        dst_lang = request_data[name]['config']['goal_language']
+        text  = request_data[name]['config']['text_to_translate']
 
         print(f"uuid: {uuid}")
         print(f"src_lang: {src_lang}")
@@ -37,23 +40,33 @@ class TranslatorThread(ThreadWrap):
         print("#######################################")
         print(f">>>>>>>>Translated: {goal}")
 
+        #print(type(goal))
+        
+                
         new_goal = {
-                'type': 'pol2ang',
-                'data': json.dumps(goal)  
-        }
+                'type': name,
+                'data': { name: {
+                            'metadata': { 'id' : uuid},
+                            'config' : {
+                                 'input_language': 'PL', 
+                                 'goal_language': 'ENG', 
+                                 'text_to_translate': goal['text_pl'], 
+                                 'translated_text': goal['text_eng'] 
+        }}}}
+
+        print(f"+++ Full request :")
+        print(json.dumps(new_goal, indent=4))
+        print("#######################################")
 
         # Dane z request:
-        # {
-        # pol2ang: { 
-        #         "metadata": { "id": f"{uuid.uuid4()}"},
-        #         "config": {
-        #             "input_language": "PL",
-        #             "goal_language": "ENG",
-        #             "text_to_translate": self.text_to_translate,
-        #             "translated_text": ""
-        #         },
-        #     } 
-        # }
+        # {'type': 'pol2eng', 
+        #  'data': {'pol2eng': {
+        #          'metadata': {'id': '2e7155a2-83fb-4940-9c4e-e41af3c599ba'},
+        #          'config': {'input_language': 'PL', 
+        #                     'goal_language': 'ENG', 
+        #                     'text_to_translate': 'Ale bym zjadĹ‚ ciastko', 
+        #                     'translated_text': ''
+        # }}}}
 
        
         self.out_queue.queue_item(new_goal)
