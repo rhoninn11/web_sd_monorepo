@@ -4,53 +4,13 @@ import argparse
 
 from core.utils.utils_thread import ThreadWrap
 from core.threads.DiffusionClientThread import DiffusionClientThread
-
 from core.system.MultiThreadingApp import MultiThreadingApp
+from core.utils.utils import obj2json2file, file2json2obj
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 project_directory = os.path.abspath(os.path.join(script_directory, "..", ".."))
 input_file_path = os.path.join(project_directory, "fs", "input.json")
 output_file_path = os.path.join(project_directory, "fs", "output.json")
-
-
-def check_files(in_file, out_file):
-    try:
-        with open(in_file, "r") as json_file:
-            input_data = json.load(json_file)
-        if not input_data:  
-            print("!!!Error - input.json is empty!!!")
-    except FileNotFoundError:  
-        print("!!!Error - missing file input.json") 
-    except json.JSONDecodeError:
-        print("!!!Error - input.json is not a valid JSON")
-
-    if not os.path.exists(out_file):
-        try:
-            with open(out_file, "w") as json_file:
-                json.dump([], json_file)  
-        except Exception as e:
-            print(f"!!!Error while creating {out_file}: {e}")
-
-    return
-
-def pars_input_file(in_file_path):
-    with open(in_file_path, "r") as json_file:
-        parsed_input = json.load(json_file)
-    return parsed_input
-
-def save_trans_to_file(message, out_file):
-    try:
-        with open(out_file, "r") as json_file:
-            previous_outfile = json.load(json_file)
-
-        previous_outfile.append(message)
-
-        with open(out_file, "w") as json_file:
-            json.dump(previous_outfile, json_file, indent=4)
-
-    except Exception as e:
-        print(f"Error while saving to file: {e}")
-    return 
 
 
 class ClientWrapper():
@@ -81,13 +41,17 @@ class ClientLogicThread(ThreadWrap):
         ThreadWrap.__init__(self)
         self.client_wrapper = None
         self.on_finish = None
-        self.name = "pol2ang"
+        self.name = "pol2eng"
 
         self.sample_num = 1
         self.result_count = 0
         self.start_moment = None
 
         self.infile_to_translate = infile_to_translate
+        self.translations = []
+    
+    def get_translations(self):
+        return self.translations
 
     def bind_wrapper(self, wrapper):
         self.client_wrapper = wrapper
@@ -100,7 +64,7 @@ class ClientLogicThread(ThreadWrap):
         command = json.dumps({ 
             "type": self.name,
             "data": { self.name: { 
-                "metadata": { "id": f"{uuid.uuid4()}"}, #"from pol2ang.py"
+                "metadata": { "id": f"{uuid.uuid4()}"}, #"from pol2eng.py"
                 "config": {
                     "input_language": "PL",
                     "goal_language": "ENG",
@@ -112,10 +76,10 @@ class ClientLogicThread(ThreadWrap):
         })
         return command
     
-    def prepare_result_to_save(self, result):
-        id = result["data"]["pol2ang"]["metadata"]["id"]
-        in_txt = result["data"]["pol2ang"]["config"]["text_to_translate"]
-        out_txt = result["data"]["pol2ang"]["config"]["translated_text"]
+    def prepare_result_to_save(self, pol2eng):
+        id = pol2eng["metadata"]["id"]
+        in_txt = pol2eng["config"]["text_to_translate"]
+        out_txt = pol2eng["config"]["translated_text"]
         message = {
                     "id": id,
                     "input_text": in_txt,
@@ -135,10 +99,12 @@ class ClientLogicThread(ThreadWrap):
             if result["type"] == self.name:
 
                 real_time = time.perf_counter() - self.start_moment
-                translation = result["data"]["pol2ang"]["config"]["translated_text"]
+                pol2eng = result["data"][self.name]
+
+                translation = pol2eng["config"]["translated_text"]
                 print(f"+++++++++++++++++++ eee yoo: \n{translation} \ntime: {real_time} \n+++++++++++++++++++\n")
-                message = self.prepare_result_to_save(result)
-                save_trans_to_file(message, output_file_path)
+                message = self.prepare_result_to_save(pol2eng)
+                self.translations.append(message)
                 return True
 
         return False
@@ -183,7 +149,7 @@ class ClientLogicThread(ThreadWrap):
         if self.on_finish:
             self.on_finish()
         
-class ExampleClient(MultiThreadingApp):
+class TranslationClient(MultiThreadingApp):
     def __init__(self, infile_to_translate):
         MultiThreadingApp.__init__(self)
         self.infile_to_translate = infile_to_translate 
@@ -196,7 +162,7 @@ class ExampleClient(MultiThreadingApp):
         print(f"+++ app start with args: {args}")
 
         client_thread = DiffusionClientThread(name="translate-client-central")  #powinien się nazywać just ClientThread
-        client_thread.config_host_dst('localhost', args.port)              #communication port
+        client_thread.config_host_dst('localhost', args.port)             
         logic_thread = ClientLogicThread(infile_to_translate =self.infile_to_translate)                            
 
         client_wrapper = ClientWrapper()          #podłącza wątek, wysyła na serwer, zbiera info z serwera
@@ -205,15 +171,20 @@ class ExampleClient(MultiThreadingApp):
         logic_thread.bind_on_finish(self.exit_fn)
 
         threads = [client_thread, logic_thread]
-        self.thread_launch(threads) 
+        self.thread_launch(threads)
+
+        return logic_thread.get_translations()
+   
 
 def main():
     print("#####################################")
-    check_files(input_file_path, output_file_path)
-    data_to_translate = pars_input_file(input_file_path)
-    app = ExampleClient(infile_to_translate = data_to_translate)
-    app.run() 
+    data_to_translate = file2json2obj(input_file_path)
+    app = TranslationClient(infile_to_translate = data_to_translate)
+    translations = app.run()
+    obj2json2file(translations, output_file_path)
+ 
     print("#########THATS_ALL_-_GOODBYE############")
+    
 main()
 
 

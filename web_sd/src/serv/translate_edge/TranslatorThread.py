@@ -17,10 +17,12 @@ class TranslatorThread(ThreadWrap):
         request = json.loads(request)
         request_data = request['data']
 
-        uuid = request_data['pol2ang']['metadata']['id']
-        src_lang = request_data['pol2ang']['config']['input_language']
-        dst_lang = request_data['pol2ang']['config']['goal_language']
-        text  = request_data['pol2ang']['config']['text_to_translate']
+        name = "pol2eng"
+
+        uuid = request_data[name]['metadata']['id']
+        src_lang = request_data[name]['config']['input_language']
+        dst_lang = request_data[name]['config']['goal_language']
+        text  = request_data[name]['config']['text_to_translate']
 
         print(f"uuid: {uuid}")
         print(f"src_lang: {src_lang}")
@@ -42,8 +44,8 @@ class TranslatorThread(ThreadWrap):
         
                 
         new_goal = {
-                'type': 'pol2ang',
-                'data': { 'pol2ang': {
+                'type': name,
+                'data': { name: {
                             'metadata': { 'id' : uuid},
                             'config' : {
                                  'input_language': 'PL', 
@@ -57,8 +59,8 @@ class TranslatorThread(ThreadWrap):
         print("#######################################")
 
         # Dane z request:
-        # {'type': 'pol2ang', 
-        #  'data': {'pol2ang': {
+        # {'type': 'pol2eng', 
+        #  'data': {'pol2eng': {
         #          'metadata': {'id': '2e7155a2-83fb-4940-9c4e-e41af3c599ba'},
         #          'config': {'input_language': 'PL', 
         #                     'goal_language': 'ENG', 
