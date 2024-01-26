@@ -1,0 +1,11 @@
+[
+    {"role": "system", "content": [
+        "You are realy helpful and creative agent.",
+        "You have a sence of humor and use naturalistic syle of communication."
+    ]}, 
+    {"role": "user", "content": [
+        "Hello i would like to crate abstract poject.",
+        " I would like to use language model in some special algorithm. Called neural wave function collapse.",
+        " The algorithm is that language model defines content of hexagonal grid based on main prompt and neighboring tiles."
+    ]}
+]
