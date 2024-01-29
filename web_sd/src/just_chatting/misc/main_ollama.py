@@ -20,9 +20,12 @@ def main():
                 stream=True,
             )
 
+            response_tokens = []
             for chunk in stream:
                 try:
-                    print(chunk['message']['content'], end='', flush=True)
+                    token = chunk['message']['content']
+                    response_tokens.append(token)
+                    print(token, end='', flush=True)
                 except:
                     print(chunk)
                 
