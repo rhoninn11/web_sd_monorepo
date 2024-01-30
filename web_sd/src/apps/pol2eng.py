@@ -89,23 +89,25 @@ class ClientLogicThread(ThreadWrap):
 
     
     def process_result(self, result):
-        if result:
-            if result["type"] == "progress":
-                if self.start_moment == None:
-                    self.start_moment = time.perf_counter()
-                
-                return False
+        if not result:
+            return
+        
+        if result["type"] == "progress":
+            if self.start_moment == None:
+                self.start_moment = time.perf_counter()
+            
+            return False
 
-            if result["type"] == self.name:
+        if result["type"] == self.name:
 
-                real_time = time.perf_counter() - self.start_moment
-                pol2eng = result["data"][self.name]
+            real_time = time.perf_counter() - self.start_moment
+            pol2eng = result["data"][self.name]
 
-                translation = pol2eng["config"]["translated_text"]
-                print(f"+++++++++++++++++++ eee yoo: \n{translation} \ntime: {real_time} \n+++++++++++++++++++\n")
-                message = self.prepare_result_to_save(pol2eng)
-                self.translations.append(message)
-                return True
+            translation = pol2eng["config"]["translated_text"]
+            print(f"+++++++++++++++++++ eee yoo: \n{translation} \ntime: {real_time} \n+++++++++++++++++++\n")
+            message = self.prepare_result_to_save(pol2eng)
+            self.translations.append(message)
+            return True
 
         return False
     

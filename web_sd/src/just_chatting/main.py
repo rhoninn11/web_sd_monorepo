@@ -21,6 +21,7 @@ class ChatClient(MultiThreadingApp):
         exec_thread = ChatExecutionThread()
 
         logic_thread.out_queue = exec_thread.in_queue
+        logic_thread.in_queue = exec_thread.out_queue
 
         threads = [exec_thread, logic_thread]
         self.thread_launch(threads)

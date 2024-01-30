@@ -5,13 +5,16 @@ from core.utils.utils_thread import ThreadWrap
 class ChatExecutionThread(ThreadWrap):
 
     
+
     def __init__(self, name="chat_execution"):
         ThreadWrap.__init__(self,name)
 
         self.request_name = "chat"
-        self.model = "notus"
+        self.model = "phi"
+
+        self.id = 0
     
-    def process_by_ollama(self, conv, put_token_here_fn):
+    def process_by_ollama(self, conv, progress_callback):
         stream = ollama.chat(
                 model=self.model,
                 messages=conv,
@@ -20,12 +23,12 @@ class ChatExecutionThread(ThreadWrap):
         
         message_builder = []
         for chunk in stream:
-            try:
-                token = chunk['message']['content']
-                message_builder.append(token)
-                put_token_here_fn(token)
-            except:
-                pass
+            if not self.run_cond:
+                break
+            
+            token = chunk['message']['content']
+            message_builder.append(token)
+            progress_callback(token)
 
         return "".join(message_builder)
     
@@ -37,6 +40,8 @@ class ChatExecutionThread(ThreadWrap):
             "token": token
         }
 
+        # klasa, która ma pola id i token. Dodatkowo jest w stanie być json'owana
+
         response = {
             "type": "progress",
             "data": {"progress": token_info}
@@ -44,7 +49,7 @@ class ChatExecutionThread(ThreadWrap):
 
         self.out_queue.queue_item(response)
         
-        print(f"________{response}")
+        # print(f"{token}", end='', flush=True)
 
     def process_request(self, data):
 
@@ -53,13 +58,12 @@ class ChatExecutionThread(ThreadWrap):
         per_token_fn = lambda tok: self.send_token_to_clinet(tok)
         msg = self.process_by_ollama(conv, per_token_fn)
 
-        conv.append({"role": "assistnt", "content": msg})
+        conv.append({"role": "assistant", "content": msg})
 
-        print(f"##########{conv}")
+        print(f"##########{msg}")
 
     def run(self):
 
-        
         while self.run_cond:
             if self.in_queue.queue_len():
                 request = self.in_queue.dequeue_item()
