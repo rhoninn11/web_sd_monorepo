@@ -11,5 +11,9 @@ def load_conversation():
             msg["content"] = "".join(msg["content"])
             conversation.append(msg)
             
-    print(conversation)
+    for item in conversation:
+        if item['role'] == 'user':
+            print(f"Question: {item['content']}") 
+            break
+
     return conversation

@@ -4,15 +4,11 @@ from core.utils.utils_thread import ThreadWrap
 
 class ChatExecutionThread(ThreadWrap):
 
-    
-
-    def __init__(self, name="chat_execution"):
+    def __init__(self, name="chat_execution", model="phi"):
         ThreadWrap.__init__(self,name)
 
         self.request_name = "chat"
-        self.model = "phi"
-
-        self.id = 0
+        self.model = model
     
     def process_by_ollama(self, conv, progress_callback):
         stream = ollama.chat(
@@ -34,13 +30,10 @@ class ChatExecutionThread(ThreadWrap):
     
     def send_token_to_clinet(self, token):
 
-
         token_info = {
             "id": 1,
             "token": token
         }
-
-        # klasa, która ma pola id i token. Dodatkowo jest w stanie być json'owana
 
         response = {
             "type": "progress",
@@ -54,13 +47,12 @@ class ChatExecutionThread(ThreadWrap):
     def process_request(self, data):
 
         conv = data[self.request_name]["messages"]
-
         per_token_fn = lambda tok: self.send_token_to_clinet(tok)
         msg = self.process_by_ollama(conv, per_token_fn)
-
+        
         conv.append({"role": "assistant", "content": msg})
 
-        print(f"##########{msg}")
+        # print(f"##########{msg}")
 
     def run(self):
 
